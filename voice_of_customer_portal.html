@@ -142,7 +142,7 @@
                             </div>
                         </div>
                         <p id="loginError" class="text-xs text-telkomRed hidden font-medium text-center"></p>
-                        <button type="submit"
+                        <button type="submit" id="loginBtn"
                             class="w-full py-4 px-4 bg-telkomRed hover:bg-telkomDarkRed text-white font-semibold rounded-2xl shadow-lg shadow-red-500/25 transition duration-200 flex items-center justify-center space-x-2 text-sm tracking-wide">
                             <span>Masuk ke Sistem</span><i class="fa-solid fa-arrow-right"></i>
                         </button>
@@ -561,27 +561,43 @@
             document.getElementById('loginUser').value = username;
         }
 
-        function handleLogin(e) {
+        async function handleLogin(e) {
             e.preventDefault();
             const userInput = document.getElementById('loginUser').value.trim().toLowerCase();
             const passInput = document.getElementById('loginPass').value.trim();
             const errBox = document.getElementById('loginError');
+            const loginBtn = document.getElementById('loginBtn');
 
-            const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
-            const matchedUser = users.find(u => u.username === userInput && u.password === passInput);
+            errBox.classList.add('hidden');
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-2"></i> Memeriksa akun...';
 
-            if (matchedUser) {
-                errBox.classList.add('hidden');
-                localStorage.setItem('voc_user', matchedUser.name);
-                localStorage.setItem('voc_role', matchedUser.role);
+            try {
+                const url = `${GOOGLE_SCRIPT_URL}?action=login&username=${encodeURIComponent(userInput)}&password=${encodeURIComponent(passInput)}`;
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`Apps Script HTTP ${response.status}`);
+                const result = await response.json();
 
-                document.getElementById('userInfo').innerHTML = `<i class="fa-solid fa-circle-user mr-1.5 text-telkomRed"></i>${matchedUser.name} (${matchedUser.role.toUpperCase()})`;
-                document.getElementById('authScreen').classList.add('hidden');
-                document.getElementById('loginPass').value = '';
-                showToast('Berhasil Masuk', `Selamat datang kembali, ${matchedUser.name}!`, 'bg-emerald-500', 'fa-check');
-            } else {
-                errBox.innerText = 'Username belum terdaftar atau Password salah!';
+                if (result.result === 'success') {
+                    const role = result.role || 'agent';
+                    localStorage.setItem('voc_user', result.name);
+                    localStorage.setItem('voc_role', role);
+
+                    document.getElementById('userInfo').innerHTML = `<i class="fa-solid fa-circle-user mr-1.5 text-telkomRed"></i>${result.name} (${role.toUpperCase()})`;
+                    document.getElementById('authScreen').classList.add('hidden');
+                    document.getElementById('loginPass').value = '';
+                    showToast('Berhasil Masuk', `Selamat datang kembali, ${result.name}!`, 'bg-emerald-500', 'fa-check');
+                } else {
+                    errBox.innerText = result.message || 'Username belum terdaftar atau Password salah!';
+                    errBox.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Gagal memeriksa akun ke server:', error);
+                errBox.innerText = 'Tidak dapat terhubung ke server. Periksa koneksi internet Anda.';
                 errBox.classList.remove('hidden');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<span>Masuk ke Sistem</span><i class="fa-solid fa-arrow-right"></i>';
             }
         }
 
