@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input VOC (Voice of Customer) - Portal</title>
+    <link rel="icon" type="image/svg+xml" href="logo-telkom.svg">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        telkomRed: '#EE3124',
+                        telkomDarkRed: '#C52216',
+                        telkomLight: '#FFF5F5',
+                        telkomGrey: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        poppins: ['Poppins', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        input[type='password']::-ms-reveal,
+        input[type='password']::-ms-clear {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="h-full bg-telkomGrey text-gray-800 flex flex-col justify-between">
+
+    <div id="app" class="w-full h-full flex flex-col justify-between">
+
+        <!-- AUTH SCREEN (REGISTER / LOGIN) -->
+        <div id="authScreen"
+            class="fixed inset-0 z-50 bg-telkomRed/95 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
+
+                <!-- REGISTER FORM -->
+                <div id="registerSection" class="hidden">
+                    <div class="text-center mb-6">
+                        <span class="inline-flex p-3 rounded-2xl mb-2">
+                            <img src="logo-telkom.svg" alt="Logo Telkom" class="w-10 h-10 object-contain">
+                        </span>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-telkomRed mb-1">Voice of Customer
+                            Portal</p>
+                        <h1 class="text-xl font-bold text-gray-900">Registrasi Akun Baru</h1>
+                        <p class="text-xs text-gray-500 mt-1">Daftarkan akun Anda terlebih dahulu sebelum mengakses
+                            portal</p>
+                    </div>
+                    <form onsubmit="handleRegister(event)" class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Nama
+                                Lengkap</label>
+                            <input type="text" id="regName" required
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
+                                placeholder="Nama lengkap Anda">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Username</label>
+                            <input type="text" id="regUser" required
+                                class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
+                                placeholder="Buat username unik">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Password</label>
+                            <div class="relative">
+                                <input type="password" id="regPass" required
+                                    class="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
+                                    placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('regPass', 'regEye')"
+                                    class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600">
+                                    <i id="regEye" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p id="regError" class="text-xs text-telkomRed hidden font-medium text-center"></p>
+                        <button type="submit" id="regBtn"
+                            class="w-full py-4 px-4 bg-telkomRed hover:bg-telkomDarkRed text-white font-semibold rounded-2xl shadow-lg shadow-red-500/25 transition duration-200 flex items-center justify-center space-x-2 text-sm tracking-wide">
+                            <span>Daftar Akun Sekarang</span><i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    <div class="text-center mt-6 pt-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">Sudah memiliki akun terdaftar? <button
+                                onclick="switchAuthView('login')"
+                                class="text-telkomRed font-semibold hover:underline">Login disini</button></p>
+                    </div>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="loginSection">
+                    <div class="text-center mb-6">
+                        <span class="inline-flex p-3 rounded-2xl mb-2">
+                            <img src="logo-telkom.svg" alt="Logo Telkom" class="w-10 h-10 object-contain">
+                        </span>
+                        <p class="text-xs font-bold uppercase tracking-[0.2em] text-telkomRed mb-1">Voice of Customer
+                            Portal</p>
+                        <h1 class="text-xl font-bold text-gray-900">Masuk ke Portal</h1>
+                        <p class="text-xs text-gray-500 mt-1">Gunakan akun yang telah Anda registrasikan sebelumnya</p>
+                    </div>
+                    <form onsubmit="handleLogin(event)" class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Username</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400"><i
+                                        class="fa-solid fa-user"></i></span>
+                                <input type="text" id="loginUser" required
+                                    class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
+                                    placeholder="Username terdaftar">
+                            </div>
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1.5">Password</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-gray-400"><i
+                                        class="fa-solid fa-lock"></i></span>
+                                <input type="password" id="loginPass" required
+                                    class="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
+                                    placeholder="••••••••">
+                                <button type="button" onclick="togglePassword('loginPass', 'loginEye')"
+                                    class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600">
+                                    <i id="loginEye" class="fa-solid fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <p id="loginError" class="text-xs text-telkomRed hidden font-medium text-center"></p>
+                        <button type="submit"
+                            class="w-full py-4 px-4 bg-telkomRed hover:bg-telkomDarkRed text-white font-semibold rounded-2xl shadow-lg shadow-red-500/25 transition duration-200 flex items-center justify-center space-x-2 text-sm tracking-wide">
+                            <span>Masuk ke Sistem</span><i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </form>
+                    <div class="text-center mt-6 pt-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500">Belum punya akun? <button onclick="switchAuthView('register')"
+                                class="text-telkomRed font-semibold hover:underline">Registrasi</button></p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- HEADER -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
+            <div class="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+                <div>
+                    <h1 class="text-lg md:text-xl font-bold text-gray-900 tracking-tight">Input VOC (Voice of Customer)
+                    </h1>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span id="userInfo"
+                        class="text-xs font-semibold bg-red-50 text-telkomRed px-3.5 py-2 rounded-xl border border-red-100 hidden sm:inline-block"></span>
+                    <button onclick="handleLogout()"
+                        class="text-gray-400 hover:text-telkomRed p-2.5 rounded-xl hover:bg-red-50 transition"
+                        title="Keluar">
+                        <i class="fa-solid fa-right-from-bracket text-base"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN FORM CONTAINER -->
+        <main class="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8">
+            <div id="formContainer" class="bg-white rounded-3xl shadow-sm border border-gray-200 p-6 sm:p-10">
+                <form id="vocForm" onsubmit="submitForm(event)" class="space-y-6">
+
+                    <!-- ID Number Input with live lookup -->
+                    <div class="relative">
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+                            <i class="fa-solid fa-id-card text-telkomRed mr-1"></i> ID NUMBER
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 pointer-events-none">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="idNumberInput" required autocomplete="off"
+                                oninput="handleIdInput(event)" onblur="checkExactMatch()"
+                                class="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm font-medium"
+                                placeholder="Ketik atau pilih ID Number...">
+                        </div>
+                        <div id="idSuggestions"
+                            class="absolute z-40 left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-2xl shadow-xl max-h-60 overflow-y-auto hidden divide-y divide-gray-50">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1.5 pl-1">Ketik ID Number untuk memunculkan Nama AM dan Nama
+                            secara otomatis.</p>
+                    </div>
+
+                    <!-- Grid for AM and Customer Name -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+                                <i class="fa-solid fa-user-tie text-telkomRed mr-1"></i> NAMA AM
+                            </label>
+                            <input type="text" id="namaAmInput" readonly
+                                class="w-full px-4 py-3.5 bg-gray-100 border border-gray-200 rounded-2xl text-gray-700 text-sm font-medium cursor-not-allowed"
+                                placeholder="Otomatis terisi...">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+                                <i class="fa-solid fa-user text-telkomRed mr-1"></i> NAMA
+                            </label>
+                            <input type="text" id="namaCustomerInput" readonly
+                                class="w-full px-4 py-3.5 bg-gray-100 border border-gray-200 rounded-2xl text-gray-700 text-sm font-medium cursor-not-allowed"
+                                placeholder="Otomatis terisi...">
+                        </div>
+                    </div>
+
+                    <!-- Voice of Customer Selection -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+                            <i class="fa-solid fa-comments text-telkomRed mr-1"></i> Voice of Customer (VOC)
+                        </label>
+                        <select id="vocSelect" required
+                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm font-medium text-gray-700">
+                            <option value="">-- Pilih Voice of Customer --</option>
+                            <option value="Contacted | Sudah Cabut">Contacted | Sudah Cabut</option>
+                            <option value="Contacted | Pindah Rumah">Contacted | Pindah Rumah</option>
+                            <option value="Contacted | Klaim Tagihan">Contacted | Klaim Tagihan</option>
+                            <option value="Contacted | Kendala Keuangan">Contacted | Kendala Keuangan</option>
+                            <option value="Contacted | Tagihan tidak sesuai">Contacted | Tagihan tidak sesuai</option>
+                            <option value="Contacted | Minta Diangsur/Cicilan">Contacted | Minta Diangsur/Cicilan
+                            </option>
+                            <option value="Contacted | Minta Jemput Tagihan">Contacted | Minta Jemput Tagihan</option>
+                            <option value="Contacted | Gangguan Jaringan/Internet Putus/LOS">Contacted | Gangguan
+                                Jaringan/Internet Putus/LOS</option>
+                            <option value="Contacted | Tidak Bisa Connect">Contacted | Tidak Bisa Connect</option>
+                            <option value="Contacted | Janji Bayar tgl 1-10">Contacted | Janji Bayar tgl 1-10</option>
+                            <option value="Contacted | Janji Bayar tgl 11-20">Contacted | Janji Bayar tgl 11-20</option>
+                            <option value="Contacted | Janji Bayar tgl 21-31">Contacted | Janji Bayar tgl 21-31</option>
+                            <option value="Lunas">Lunas</option>
+                            <option value="Contacted | Lunas Sebagian / blm ada Bupot">Contacted | Lunas Sebagian / blm
+                                ada Bupot</option>
+                            <option value="Contacted | Ingin Bermohon Cabut">Contacted | Ingin Bermohon Cabut</option>
+                            <option value="Not Contacted | Nada Sibuk">Not Contacted | Nada Sibuk</option>
+                            <option value="Not Contacted | RNA">Not Contacted | RNA</option>
+                            <option value="Not Contacted | Tidak Aktif/Diluar Jangkauan">Not Contacted | Tidak
+                                Aktif/Diluar Jangkauan</option>
+                            <option value="Contacted | Proses Rekon">Contacted | Proses Rekon</option>
+                            <option value="Contacted | Belum Jatuh Tempo">Contacted | Belum Jatuh Tempo</option>
+                            <option value="Contacted | Potensi Koreksi">Contacted | Potensi Koreksi</option>
+                            <option value="Contacted | Kontrak habis, tidak lanjut tapi billing masih muncul">Contacted
+                                | Kontrak habis, tidak lanjut tapi billing masih muncul</option>
+                            <option value="Contacted | Sisa Pajak">Contacted | Sisa Pajak</option>
+                            <option value="Contacted | Kontrak habis, lanjut tapi ada selisih billing">Contacted |
+                                Kontrak habis, lanjut tapi ada selisih billing</option>
+                            <option value="Contacted | ID tidak backdate">Contacted | ID tidak backdate</option>
+                            <option value="Contacted | Kelebihan input billing">Contacted | Kelebihan input billing
+                            </option>
+                            <option value="Contacted | Sulit ditagih">Contacted | Sulit ditagih</option>
+                            <option value="Contacted | Belum Terima Invoice">Contacted | Belum Terima Invoice</option>
+                            <option value="Contacted | Menunggu Faktur Pajak">Contacted | Menunggu Faktur Pajak</option>
+                        </select>
+                    </div>
+
+                    <!-- Keterangan / Notes Textarea -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-2">
+                            <i class="fa-solid fa-pen-to-square text-telkomRed mr-1"></i> Keterangan Tambahan
+                        </label>
+                        <textarea id="keteranganInput" rows="4"
+                            class="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm font-medium"
+                            placeholder="Tuliskan catatan atau keterangan detail di sini..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-4">
+                        <button type="submit" id="submitBtn"
+                            class="w-full py-4 px-6 bg-telkomRed hover:bg-telkomDarkRed text-white font-semibold rounded-2xl shadow-lg shadow-red-500/25 transition duration-200 flex items-center justify-center space-x-2 text-sm tracking-wide">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Kirim Data VOC</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+
+        <!-- Notification Toast Modal -->
+        <div id="toast"
+            class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-sm w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 flex items-center space-x-3.5">
+            <div id="toastIcon"
+                class="w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-sm"></div>
+            <div>
+                <h4 id="toastTitle" class="font-semibold text-sm text-gray-900"></h4>
+                <p id="toastMessage" class="text-xs text-gray-500 mt-0.5"></p>
+            </div>
+        </div>
+
+        <footer class="bg-white border-t border-gray-200 py-4 text-center text-xs text-gray-400">
+            &copy; 2026 Voice of Customer Portal.
+        </footer>
+    </div>
+
+    <script>
+        const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/1K82wN91piAbRwMNF1vXnLz0znQbfP_P9t75pcUzTbU/export?format=csv&gid=2060670175';
+        const VOC_SPREADSHEET_ID = '1n4sc2PIiD7UuMCd7LAM_zdn3EUSMvJGJXXWsfNYUn8Y';
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyC4gsJtPmfaYtfEKyO0T7RpDi5IEJDiGlr-Qc_gF_Q_p4lF-D2VzNppR30Vv8uAZ8-/exec';
+        const SOURCE_COLUMN_INDEX = {
+            idNumber: 2,
+            namaAm: 3,
+            nama: 4
+        };
+
+        let sheetDatabase = [];
+        let sheetDatabaseReady = false;
+        let adminUsernames = ['admin', 'superadmin'];
+
+        async function loadSheetDatabase() {
+            try {
+                const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=source`);
+                if (!response.ok) throw new Error(`Apps Script HTTP ${response.status}`);
+                const sourceData = await response.json();
+                parseSourceData(sourceData);
+                if (!sheetDatabase.length) throw new Error('Data sumber kosong');
+                sheetDatabaseReady = true;
+                lookupIdNumber(document.getElementById('idNumberInput')?.value || '');
+                return;
+            } catch (error) {
+                console.warn('Gagal memuat data melalui Apps Script, mencoba CSV...', error);
+                try {
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(SHEET_CSV_URL);
+                    const response = await fetch(proxyUrl);
+                    if (!response.ok) throw new Error(`Proxy HTTP ${response.status}`);
+                    const csvText = await response.text();
+                    parseCSVToDatabase(csvText);
+                    if (!sheetDatabase.length) throw new Error('CSV sumber kosong');
+                    sheetDatabaseReady = true;
+                    lookupIdNumber(document.getElementById('idNumberInput')?.value || '');
+                } catch (directError) {
+                    console.error('Gagal total mengambil spreadsheet:', directError);
+                    showToast('Data Tidak Tersedia', 'Pastikan sheet sumber dibagikan sebagai publik dan URL spreadsheet benar.', 'bg-red-500', 'fa-triangle-exclamation');
+                }
+            }
+        }
+
+        function parseSourceData(sourceData) {
+            if (sourceData && sourceData.result === 'error') {
+                throw new Error(sourceData.message || 'Gagal mengambil data sumber.');
+            }
+
+            const sourceRows = Array.isArray(sourceData)
+                ? sourceData
+                : Array.isArray(sourceData && sourceData.data)
+                    ? sourceData.data
+                    : [];
+
+            sheetDatabase = sourceRows
+                .map(item => ({
+                    id: String(item.idNumber || '').trim(),
+                    am: String(item.namaAm || '-').trim(),
+                    customer: String(item.nama || '').trim() || '-'
+                }))
+                .filter(item => item.id);
+        }
+
+        function normalizeId(value) {
+            return String(value || '')
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '')
+                .replace(/\.0$/, '');
+        }
+
+        function parseCSVRows(text) {
+            const rows = [];
+            let row = [];
+            let value = '';
+            let inQuotes = false;
+
+            for (let index = 0; index < text.length; index++) {
+                const character = text[index];
+                const nextCharacter = text[index + 1];
+
+                if (character === '"' && inQuotes && nextCharacter === '"') {
+                    value += '"';
+                    index++;
+                } else if (character === '"') {
+                    inQuotes = !inQuotes;
+                } else if (character === ',' && !inQuotes) {
+                    row.push(value.trim());
+                    value = '';
+                } else if ((character === '\n' || character === '\r') && !inQuotes) {
+                    if (character === '\r' && nextCharacter === '\n') index++;
+                    row.push(value.trim());
+                    if (row.some(cell => cell !== '')) rows.push(row);
+                    row = [];
+                    value = '';
+                } else {
+                    value += character;
+                }
+            }
+
+            if (value || row.length) {
+                row.push(value.trim());
+                if (row.some(cell => cell !== '')) rows.push(row);
+            }
+            return rows;
+        }
+
+        function normalizeHeader(value) {
+            return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function parseCSVToDatabase(text) {
+            const rows = parseCSVRows(text);
+            sheetDatabase = [];
+            if (!rows.length) return;
+
+            const firstRow = rows[0].map(normalizeHeader);
+            const hasHeader = firstRow.some(value => ['idnumber', 'id', 'namaam', 'nama'].includes(value));
+            const dataRows = hasHeader ? rows.slice(1) : rows;
+            const idIndex = hasHeader
+                ? firstRow.findIndex(value => ['idnumber', 'id'].includes(value))
+                : SOURCE_COLUMN_INDEX.idNumber;
+            const amIndex = hasHeader
+                ? firstRow.findIndex(value => value === 'namaam')
+                : SOURCE_COLUMN_INDEX.namaAm;
+            const customerIndex = hasHeader
+                ? firstRow.findIndex(value => value === 'nama')
+                : SOURCE_COLUMN_INDEX.nama;
+
+            dataRows.forEach(columns => {
+                const idNumber = (columns[idIndex] || '').trim();
+                const namaAm = (columns[amIndex] || '-').trim();
+                const namaCustomer = (columns[customerIndex] || '-').trim();
+
+                if (idNumber && !['id', 'idnumber'].includes(idNumber.toLowerCase())) {
+                    sheetDatabase.push({ id: idNumber, am: namaAm, customer: namaCustomer });
+                }
+            });
+        }
+
+        // Cek Status Akun & Sesi Saat Halaman Dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSheetDatabase();
+            const savedUser = localStorage.getItem('voc_user');
+            const savedRole = localStorage.getItem('voc_role');
+
+            if (savedUser) {
+                // Jika sudah login sebelumnya, langsung masuk ke dashboard aplikasi
+                document.getElementById('userInfo').innerHTML = `<i class="fa-solid fa-circle-user mr-1.5 text-telkomRed"></i>${savedUser} (${savedRole.toUpperCase()})`;
+                document.getElementById('authScreen').classList.add('hidden');
+            } else {
+                // Cek apakah user sudah pernah registrasi sebelumnya di perangkat ini
+                const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
+
+                if (registeredUsers.length > 0) {
+                    // Jika SUDAH PERNAH registrasi, langsung arahkan ke halaman LOGIN
+                    switchAuthView('login');
+                } else {
+                    // Jika BELUM PERNAH registrasi sama sekali, tampilkan form REGISTRASI
+                    switchAuthView('register');
+                }
+            }
+        });
+
+        function switchAuthView(view) {
+            const loginSec = document.getElementById('loginSection');
+            const regSec = document.getElementById('registerSection');
+            if (view === 'login') {
+                regSec.classList.add('hidden');
+                loginSec.classList.remove('hidden');
+            } else {
+                loginSec.classList.add('hidden');
+                regSec.classList.remove('hidden');
+            }
+        }
+
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // Proses Registrasi User Baru
+        async function handleRegister(e) {
+            e.preventDefault();
+            const name = document.getElementById('regName').value.trim();
+            const username = document.getElementById('regUser').value.trim().toLowerCase();
+            const password = document.getElementById('regPass').value.trim();
+            const errBox = document.getElementById('regError');
+            const regBtn = document.getElementById('regBtn');
+            const normalizedName = name.toLowerCase().replace(/\s+/g, ' ');
+            const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+            const nameAlreadyRegistered = users.some(user =>
+                String(user.name || '').trim().toLowerCase().replace(/\s+/g, ' ') === normalizedName
+            );
+            const usernameAlreadyRegistered = users.some(user =>
+                String(user.username || '').trim().toLowerCase() === username
+            );
+
+            if (nameAlreadyRegistered || usernameAlreadyRegistered) {
+                errBox.innerText = nameAlreadyRegistered
+                    ? 'Nama sudah terdaftar. Gunakan nama lain.'
+                    : 'Username sudah terdaftar. Gunakan username lain.';
+                errBox.classList.remove('hidden');
+                return;
+            }
+
+            const role = adminUsernames.includes(username) ? 'admin' : 'agent';
+
+            regBtn.disabled = true;
+            regBtn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-2"></i> Mendaftarkan...';
+
+            const payload = {
+                type: 'register',
+                name: name,
+                username: username,
+                password: password,
+                role: role,
+                timestamp: new Date().toISOString()
+            };
+
+            if (GOOGLE_SCRIPT_URL) {
+                try {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ ...payload, spreadsheetId: VOC_SPREADSHEET_ID })
+                    });
+                } catch (err) {
+                    console.warn('Gagal sinkronisasi registrasi online:', err);
+                }
+            }
+
+            users.push({ name, username, password, role });
+            localStorage.setItem('registered_users', JSON.stringify(users));
+
+            regBtn.disabled = false;
+            regBtn.innerHTML = '<span>Daftar Akun Sekarang</span><i class="fa-solid fa-arrow-right"></i>';
+
+            showToast('Registrasi Berhasil!', 'Akun Anda telah terdaftar. Silakan masuk (login).', 'bg-emerald-500', 'fa-check');
+            errBox.classList.add('hidden');
+            e.target.reset();
+
+            // Pindahkan ke halaman login secara otomatis setelah sukses daftar
+            switchAuthView('login');
+            document.getElementById('loginUser').value = username;
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const userInput = document.getElementById('loginUser').value.trim().toLowerCase();
+            const passInput = document.getElementById('loginPass').value.trim();
+            const errBox = document.getElementById('loginError');
+
+            const users = JSON.parse(localStorage.getItem('registered_users') || '[]');
+            const matchedUser = users.find(u => u.username === userInput && u.password === passInput);
+
+            if (matchedUser) {
+                errBox.classList.add('hidden');
+                localStorage.setItem('voc_user', matchedUser.name);
+                localStorage.setItem('voc_role', matchedUser.role);
+
+                document.getElementById('userInfo').innerHTML = `<i class="fa-solid fa-circle-user mr-1.5 text-telkomRed"></i>${matchedUser.name} (${matchedUser.role.toUpperCase()})`;
+                document.getElementById('authScreen').classList.add('hidden');
+                document.getElementById('loginPass').value = '';
+                showToast('Berhasil Masuk', `Selamat datang kembali, ${matchedUser.name}!`, 'bg-emerald-500', 'fa-check');
+            } else {
+                errBox.innerText = 'Username belum terdaftar atau Password salah!';
+                errBox.classList.remove('hidden');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('voc_user');
+            localStorage.removeItem('voc_role');
+            document.getElementById('authScreen').classList.remove('hidden');
+
+            // Setelah logout, arahkan kembali ke halaman login
+            switchAuthView('login');
+        }
+
+        function lookupIdNumber(value) {
+            const query = String(value || '').trim();
+            const suggestionsBox = document.getElementById('idSuggestions');
+            const amInput = document.getElementById('namaAmInput');
+            const custInput = document.getElementById('namaCustomerInput');
+
+            if (!suggestionsBox || !amInput || !custInput) return;
+
+            if (!query) {
+                amInput.value = '';
+                custInput.value = '';
+                suggestionsBox.classList.add('hidden');
+                suggestionsBox.innerHTML = '';
+                return;
+            }
+
+            const lowerQuery = normalizeId(query);
+            const exactMatch = sheetDatabase.find(item => normalizeId(item.id) === lowerQuery);
+
+            if (exactMatch) {
+                amInput.value = exactMatch.am;
+                custInput.value = exactMatch.customer;
+            } else {
+                amInput.value = '';
+                custInput.value = '';
+            }
+
+            const filtered = sheetDatabase.filter(item => normalizeId(item.id).includes(lowerQuery)).slice(0, 10);
+
+            if (filtered.length > 0) {
+                suggestionsBox.innerHTML = filtered.map(item => `
+                    <div onclick="selectId('${item.id}')" class="px-4 py-3 hover:bg-red-50 hover:text-telkomRed cursor-pointer text-sm font-medium transition flex items-center justify-between">
+                        <span class="font-semibold text-gray-800">${item.id}</span>
+                        <span class="text-xs text-gray-400 truncate max-w-[200px]">${item.customer}</span>
+                    </div>
+                `).join('');
+                suggestionsBox.classList.remove('hidden');
+            } else {
+                suggestionsBox.classList.add('hidden');
+            }
+        }
+
+        function handleIdInput(e) {
+            lookupIdNumber(e.target.value);
+        }
+
+        function checkExactMatch() {
+            setTimeout(() => {
+                const inputVal = document.getElementById('idNumberInput').value.trim();
+                document.getElementById('idSuggestions').classList.add('hidden');
+
+                const matchedItem = sheetDatabase.find(item => normalizeId(item.id) === normalizeId(inputVal));
+                if (matchedItem) {
+                    document.getElementById('idNumberInput').value = matchedItem.id;
+                    document.getElementById('namaAmInput').value = matchedItem.am;
+                    document.getElementById('namaCustomerInput').value = matchedItem.customer;
+                }
+            }, 250);
+        }
+
+        function selectId(id) {
+            const input = document.getElementById('idNumberInput');
+            input.value = id;
+            document.getElementById('idSuggestions').classList.add('hidden');
+
+            const matchedItem = sheetDatabase.find(item => normalizeId(item.id) === normalizeId(id));
+            if (matchedItem) {
+                document.getElementById('namaAmInput').value = matchedItem.am;
+                document.getElementById('namaCustomerInput').value = matchedItem.customer;
+            }
+        }
+
+        document.addEventListener('click', function (e) {
+            const container = document.getElementById('idSuggestions');
+            const input = document.getElementById('idNumberInput');
+            if (container && input && !container.contains(e.target) && e.target !== input) {
+                container.classList.add('hidden');
+            }
+        });
+
+        async function submitForm(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner animate-spin mr-2"></i> Mengirim Data...';
+
+            try {
+                const formData = {
+                    type: 'voc',
+                    agent: localStorage.getItem('voc_user') || 'Unknown',
+                    role: localStorage.getItem('voc_role') || 'agent',
+                    idNumber: document.getElementById('idNumberInput').value,
+                    namaAm: document.getElementById('namaAmInput').value,
+                    namaCustomer: document.getElementById('namaCustomerInput').value,
+                    voc: document.getElementById('vocSelect').value,
+                    keterangan: document.getElementById('keteranganInput').value,
+                    timestamp: new Date().toISOString()
+                };
+
+                if (GOOGLE_SCRIPT_URL) {
+                    await fetch(GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ ...formData, spreadsheetId: VOC_SPREADSHEET_ID })
+                    });
+                }
+
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> Kirim Data VOC';
+                showToast('Sukses!', 'Data VOC berhasil dikirim.', 'bg-emerald-500', 'fa-check');
+                document.getElementById('vocForm').reset();
+                document.getElementById('namaAmInput').value = '';
+                document.getElementById('namaCustomerInput').value = '';
+            } catch (err) {
+                console.error('Gagal mengirim data VOC:', err);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-paper-plane mr-2"></i> Kirim Data VOC';
+                showToast('Gagal!', err.message || 'Data VOC gagal dikirim.', 'bg-red-500', 'fa-triangle-exclamation');
+            }
+        }
+
+        function showToast(title, message, bgClass, iconClass) {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toastIcon.className = `w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-sm ${bgClass}`;
+            toastIcon.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3500);
+        }
+    </script>
+</body>
+
+</html>
