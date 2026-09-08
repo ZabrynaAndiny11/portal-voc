@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/voice_of_customer_portal.html" }
+  ]
+}
