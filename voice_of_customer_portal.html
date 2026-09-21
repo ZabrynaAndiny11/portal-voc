@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
@@ -37,17 +37,45 @@
         input[type='password']::-ms-clear {
             display: none;
         }
+
+        /* Selama layar login tampil, konten aplikasi disembunyikan & background merah,
+           agar tidak ada yang bocor di area yang tidak tertutup overlay (mis. di bawah toolbar iOS Safari) */
+        body.auth-open {
+            background-color: #EE3124;
+        }
+
+        body.auth-open #app>header,
+        body.auth-open #app>main,
+        body.auth-open #app>footer {
+            display: none;
+        }
+
+        /* Tinggi halaman mengikuti viewport dinamis (address bar mobile), bukan tinggi tetap */
+        #app {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* iOS Safari otomatis zoom saat fokus ke input berukuran font < 16px */
+        @media (max-width: 639px) {
+
+            input,
+            select,
+            textarea {
+                font-size: 16px !important;
+            }
+        }
     </style>
 </head>
 
-<body class="h-full bg-telkomGrey text-gray-800 flex flex-col justify-between">
+<body class="auth-open bg-telkomGrey text-gray-800">
 
-    <div id="app" class="w-full h-full flex flex-col justify-between">
+    <div id="app" class="w-full flex flex-col justify-between">
 
         <!-- AUTH SCREEN (REGISTER / LOGIN) -->
-        <div id="authScreen"
-            class="fixed inset-0 z-50 bg-telkomRed/95 backdrop-blur-md flex items-center justify-center p-4">
-            <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-8">
+        <div id="authScreen" class="fixed inset-0 z-50 bg-telkomRed/95 backdrop-blur-md overflow-y-auto">
+            <div class="min-h-full flex items-center justify-center p-4">
+            <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-6 sm:p-8">
 
                 <!-- REGISTER FORM -->
                 <div id="registerSection" class="hidden">
@@ -85,7 +113,7 @@
                                     class="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
                                     placeholder="••••••••">
                                 <button type="button" onclick="togglePassword('regPass', 'regEye')"
-                                    class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600">
+                                    class="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-gray-400 hover:text-gray-600">
                                     <i id="regEye" class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -136,7 +164,7 @@
                                     class="w-full pl-11 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-telkomRed focus:bg-white focus:outline-none transition text-sm"
                                     placeholder="••••••••">
                                 <button type="button" onclick="togglePassword('loginPass', 'loginEye')"
-                                    class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-gray-600">
+                                    class="absolute inset-y-0 right-0 w-12 flex items-center justify-center text-gray-400 hover:text-gray-600">
                                     <i id="loginEye" class="fa-solid fa-eye"></i>
                                 </button>
                             </div>
@@ -153,6 +181,7 @@
                     </div>
                 </div>
 
+            </div>
             </div>
         </div>
 
@@ -293,10 +322,10 @@
 
         <!-- Notification Toast Modal -->
         <div id="toast"
-            class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 max-w-sm w-full bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 flex items-center space-x-3.5">
+            class="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 sm:w-full sm:max-w-sm z-[60] pointer-events-none transform translate-y-24 opacity-0 transition-all duration-300 bg-white rounded-3xl shadow-2xl border border-gray-100 p-4 flex items-center space-x-3.5">
             <div id="toastIcon"
                 class="w-11 h-11 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-sm"></div>
-            <div>
+            <div class="min-w-0">
                 <h4 id="toastTitle" class="font-semibold text-sm text-gray-900"></h4>
                 <p id="toastMessage" class="text-xs text-gray-500 mt-0.5"></p>
             </div>
@@ -456,6 +485,7 @@
                 // Jika sudah login sebelumnya, langsung masuk ke dashboard aplikasi
                 document.getElementById('userInfo').innerHTML = `<i class="fa-solid fa-circle-user mr-1.5 text-telkomRed"></i>${savedUser} (${savedRole.toUpperCase()})`;
                 document.getElementById('authScreen').classList.add('hidden');
+                document.body.classList.remove('auth-open');
             } else {
                 // Cek apakah user sudah pernah registrasi sebelumnya di perangkat ini
                 const registeredUsers = JSON.parse(localStorage.getItem('registered_users') || '[]');
@@ -585,6 +615,7 @@
 
                     document.getElementById('userInfo').innerHTML = `<i class="fa-solid fa-circle-user mr-1.5 text-telkomRed"></i>${result.name} (${role.toUpperCase()})`;
                     document.getElementById('authScreen').classList.add('hidden');
+                    document.body.classList.remove('auth-open');
                     document.getElementById('loginPass').value = '';
                     showToast('Berhasil Masuk', `Selamat datang kembali, ${result.name}!`, 'bg-emerald-500', 'fa-check');
                 } else {
@@ -605,6 +636,7 @@
             localStorage.removeItem('voc_user');
             localStorage.removeItem('voc_role');
             document.getElementById('authScreen').classList.remove('hidden');
+            document.body.classList.add('auth-open');
 
             // Setelah logout, arahkan kembali ke halaman login
             switchAuthView('login');
@@ -641,9 +673,9 @@
 
             if (filtered.length > 0) {
                 suggestionsBox.innerHTML = filtered.map(item => `
-                    <div onclick="selectId('${item.id}')" class="px-4 py-3 hover:bg-red-50 hover:text-telkomRed cursor-pointer text-sm font-medium transition flex items-center justify-between">
-                        <span class="font-semibold text-gray-800">${item.id}</span>
-                        <span class="text-xs text-gray-400 truncate max-w-[200px]">${item.customer}</span>
+                    <div onclick="selectId('${item.id}')" class="px-4 py-3 hover:bg-red-50 hover:text-telkomRed cursor-pointer text-sm font-medium transition flex items-center justify-between gap-3">
+                        <span class="font-semibold text-gray-800 shrink-0">${item.id}</span>
+                        <span class="text-xs text-gray-400 truncate min-w-0">${item.customer}</span>
                     </div>
                 `).join('');
                 suggestionsBox.classList.remove('hidden');
@@ -743,9 +775,9 @@
             toastTitle.innerText = title;
             toastMessage.innerText = message;
 
-            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.remove('translate-y-24', 'opacity-0');
             setTimeout(() => {
-                toast.classList.add('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-24', 'opacity-0');
             }, 3500);
         }
     </script>
